@@ -26,7 +26,7 @@ module.exports = class CheckUpdatePlugin {
             `<script>
               !localStorage['${name}'] && localStorage.setItem('${name}', "${version}");
               window['${utilName}'] = {
-                  path: window.location.origin + '/version.json,
+                  path: window.location.origin + '/version.json',
                   sync: function () {
                       localStorage.setItem('${name}', "${version}")
                   }
