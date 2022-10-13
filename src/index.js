@@ -4,7 +4,15 @@ module.exports = class CheckUpdatePlugin {
     this.props = props
   }
   apply(compiler) {
-    const { name, versionPath, htmlPath, content, title, version } = this.props
+    const {
+      name = 'update-check-key',
+      versionPath,
+      htmlPath,
+      content = [],
+      title = '新版本提示',
+      version,
+      utilName = 'NEW_VERSION_CHECK'
+    } = this.props
     compiler.hooks.done.tap('CheckUpdatePlugin', () => {
       fs.writeFile(versionPath, JSON.stringify({ content, title, version, date: Date.now() }), 'utf8', () => {})
       fs.readFile(htmlPath, 'utf8', (error, data) => {
@@ -15,17 +23,16 @@ module.exports = class CheckUpdatePlugin {
           htmlPath,
           [
             header,
-            `
-                <script>
-                    !localStorage['${name}'] && localStorage.setItem('${name}', "${version}");
-                    window.version = {
-                        path: window.location.origin + '/version.json?v=' + Date.now(),
-                        sync: function () {
-                            localStorage.setItem('${name}', "${version}")
-                        }
-                    }
-                </script>
-            `,
+            `<script>
+              !localStorage['${name}'] && localStorage.setItem('${name}', "${version}");
+              window['${utilName}'] = {
+                  path: window.location.origin + '/version.json,
+                  sync: function () {
+                      localStorage.setItem('${name}', "${version}")
+                  }
+              }
+          </script>
+        `,
             footer
           ].join(''),
           'utf8',
