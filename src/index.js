@@ -11,7 +11,7 @@ module.exports = class CheckUpdatePlugin {
       content = [],
       title = '新版本提示',
       version,
-      utilName = 'NEW_VERSION_CHECK'
+      syncFunctionName = 'syncVersionNumber'
     } = this.props
     compiler.hooks.done.tap('CheckUpdatePlugin', () => {
       fs.writeFile(versionPath, JSON.stringify({ content, title, version, date: Date.now() }), 'utf8', () => {})
@@ -25,7 +25,7 @@ module.exports = class CheckUpdatePlugin {
             header,
             `<script>
               !localStorage['${name}'] && localStorage.setItem('${name}', "${version}");
-              window.syncLocalVersion = function () {
+              window['${syncFunctionName}'] = function () {
                 localStorage.setItem('${name}', "${version}")
               }
           </script>

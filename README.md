@@ -34,15 +34,15 @@ module.exports = {
 // main.js
 import Vue from 'vue'
 import axios from 'axios'
-Vue.prototype.$checkUpdate = function (){
-  axios.get(window.NEW_VERSION_CHECK.path + '?v=' + Date.now()).then((rsp) => {
+Vue.prototype.$checkUpdate = function() {
+  axios.get(window.NEW_VERSION_CHECK.path + '?v=' + Date.now()).then(rsp => {
     // 插件提供的数据
     const { version, title, content, date } = rsp.data.data
     // project-name-key 需要与插件name值一致
     if (version === localStorage.getItem('project-name-key')) return console.log('当前版本是最新版本')
-    
+
     // 检测到新版本
-    
+
     this.$notify({
       title,
       duration: 0,
@@ -50,9 +50,8 @@ Vue.prototype.$checkUpdate = function (){
       dangerouslyUseHTMLString: true,
       message: content.toString(),
       // 关闭后同步版本号到本地
-      onClose: () => window.NEW_VERSION_CHECK.sync()
+      onClose: () => window.syncVersionNumber()
     })
   })
 }
-
 ```
