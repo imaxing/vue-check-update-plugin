@@ -21,7 +21,7 @@ module.exports = {
           versionPath: 'dist/version.json', // 版本信息文件写入路径
           htmlPath: 'dist/index.html', // html 文件路径
           title: '新版本提示', // 新版本标题
-          utilName: 'NEW_VERSION_CHECK', // 注入到html中的全局变量明 window.NEW_VERSION_CHECK
+          syncFunctionName: 'syncVersionNumber', // 注入到html中的全局函数
           content: ['修改了xxx Bug', '增加了xxx 新功能'] // 新版本更新日志
         })
       )
