@@ -1,5 +1,7 @@
 # 为 vuecli 项目增加新版本检测功能
 
+> 如需通知用户有新版本, 需要更新package.json的version值
+
 安装
 
 ```bash
