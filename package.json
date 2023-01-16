@@ -1,6 +1,6 @@
 {
   "name": "vue-check-update-plugin",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "",
   "main": "dist/index.cjs.js",
   "module": "dist/index.cjs.js",
@@ -8,6 +8,7 @@
     "serve": "npx rollup -c -w",
     "build": "npx rollup -c"
   },
+  "license": "MIT",
   "repository": {
     "url": "https://github.com/imaxing/vue-check-update-plugin"
   },
