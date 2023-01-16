@@ -11,10 +11,9 @@ npm i vue-check-update-plugin -D
 ```js
 // vue.config.js
 const CheckUpdatePlugin = require('vue-check-update-plugin')
-const isDevelopment = process.env.NODE_ENV === 'development'
 module.exports = {
   configureWebpack: config => {
-    if (!isDevelopment) {
+    if (process.env.NODE_ENV !== 'development') {
       config.plugins.push(
         new CheckUpdatePlugin({
           name: 'project-name-key', // 版本名称
@@ -31,25 +30,24 @@ module.exports = {
 ```
 
 ```js
-// main.js
-import Vue from 'vue'
-import axios from 'axios'
+// 在任意代码出调用此函数即可
 Vue.prototype.$checkUpdate = function() {
-  axios.get(window.NEW_VERSION_CHECK.path + '?v=' + Date.now()).then(rsp => {
-    // 插件提供的数据
+  axios.get(window.location.origin + '/version.json?v=' + Date.now()).then(rsp => {
+    // 由插件提供的比对数据
     const { version, title, content, date } = rsp.data.data
+
+    // 当前版本是最新版本
     // project-name-key 需要与插件name值一致
-    if (version === localStorage.getItem('project-name-key')) return console.log('当前版本是最新版本')
+    if (version === localStorage.getItem('project-name-key')) return
 
-    // 检测到新版本
-
+    // 检测到新版本并弹出提示
     this.$notify({
       title,
       duration: 0,
       showClose: true,
       dangerouslyUseHTMLString: true,
       message: content.toString(),
-      // 关闭后同步版本号到本地
+      // 关闭后手动同步服务器上的最新版本号到本地
       onClose: () => window.syncVersionNumber()
     })
   })
