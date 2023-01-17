@@ -1,6 +1,6 @@
 # 为 vuecli 项目增加新版本检测功能
 
-> 如需通知用户有新版本, 需要更新package.json的version值
+> 如需通知用户有新版本, 需要更新 package.json 的 version 值
 
 安装
 
@@ -22,6 +22,7 @@ module.exports = {
           versionPath: 'dist/version.json', // 版本信息文件写入路径
           htmlPath: 'dist/index.html', // html 文件路径
           title: '新版本提示', // 新版本标题
+          version: require('./package.json').version, // 次版本号与用户本地上次加载的版本号比对
           syncFunctionName: 'syncVersionNumber', // 注入到html中的全局函数
           content: ['修改了xxx Bug', '增加了xxx 新功能'] // 新版本更新日志
         })
