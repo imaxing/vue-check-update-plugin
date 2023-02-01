@@ -51,7 +51,10 @@ Vue.prototype.$checkUpdate = function() {
       dangerouslyUseHTMLString: true,
       message: content.toString(),
       // 关闭后手动同步服务器上的最新版本号到本地
-      onClose: () => window.syncVersionNumber()
+      onClose: () => {
+        window.syncVersionNumber()
+        window.location.reload()
+      }
     })
   })
 }
