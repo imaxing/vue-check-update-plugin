@@ -48,19 +48,25 @@ class CheckUpdatePlugin {
     }
 
     compiler.hooks.done.tapPromise('CheckUpdatePlugin', () => {
-      writeFile(versionPath, { contents, title, version, timestamp: Date.now() }).then(() => {
-        readFile(templatePath).then(data => {
-          const [header, footer] = data.split('<body>')
-          const body = `
-            <script>
-              !localStorage['${name}'] && localStorage.setItem('${name}', "${version}");
-              window['${syncFunctionName}'] = function () {
-                localStorage.setItem('${name}', "${version}")
-              }
-            </script>
-          `
-          writeFile(templatePath, [header, body, footer].join(''))
-        })
+      return new Promise((resolve, reject) => {
+        writeFile(versionPath, { contents, title, version, timestamp: Date.now() })
+          .then(() => {
+            readFile(templatePath)
+              .then(data => {
+                const [header, footer] = data.split('<body>')
+                const body = `
+              <script>
+                !localStorage['${name}'] && localStorage.setItem('${name}', "${version}");
+                window['${syncFunctionName}'] = function () {
+                  localStorage.setItem('${name}', "${version}")
+                }
+              </script>
+            `
+                writeFile(templatePath, [header, body, footer].join('')).then(resolve).catch(reject)
+              })
+              .catch(reject)
+          })
+          .catch(reject)
       })
     })
   }
