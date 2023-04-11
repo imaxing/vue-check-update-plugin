@@ -1,75 +1,78 @@
 const fs = require('fs')
 
-const readFile = (p: string): Promise<string> => {
-  return new Promise((rl, rj) => fs.readFile(p, 'utf8', (e: any, d: string) => (e ? rj(e) : rl(d))))
-}
+/**
+ * 注入代码逻辑
+ * @param props
+ * @returns
+ */
+const getVersionInjection = (props: GetVersionInjectProps): string => {
+  const { name, version, syncName } = props
 
-const writeFile = (p: string, d: any): Promise<string> => {
-  return new Promise((rl, rj) => fs.writeFile(p, JSON.stringify(d), 'utf8', (e: any, d: string) => (e ? rj(e) : rl(d))))
+  return `
+    <script>
+      // the code is injected by the vue-check-update-plugin
+      !localStorage['${name}'] && localStorage.setItem('${name}', "${version}");
+      window['${syncName}'] = function () {
+        localStorage.setItem('${name}', "${version}")
+      }
+    </script>
+  `
 }
 
 interface CheckUpdatePluginProps {
-  name?: string
+  name: string
   versionPath: string
-  templatePath: string
+  template: string
   contents?: string[]
   title?: string
   version: string
-  syncFunctionName?: string
+  syncName?: string
 }
 
-class CheckUpdatePlugin {
+interface GetVersionInjectProps {
+  name: string
+  version: string
+  syncName: string
+}
+
+module.exports = class CheckUpdatePlugin {
   props: CheckUpdatePluginProps = {
     name: '',
     title: '',
     versionPath: '',
     version: '',
-    templatePath: '',
+    template: '',
     contents: [],
-    syncFunctionName: ''
+    syncName: ''
   }
   constructor(props: CheckUpdatePluginProps) {
     this.props = props
+
+    if (!props.name) {
+      throw Error('Missing name parameter')
+    }
   }
 
   apply(compiler: any) {
     const {
       name,
+      title,
+      version,
       versionPath = 'dist/version.json',
-      templatePath = 'dist/index.html',
-      contents = [],
-      title = '新版本提示',
-      version = '1.0.0',
-      syncFunctionName = 'syncVersionInformation'
+      template = 'dist/index.html',
+      syncName = 'syncVersion',
+      contents = []
     } = this.props
 
-    if (!name) {
-      throw Error('Missing name parameter')
-    }
-
-    compiler.hooks.done.tapPromise('CheckUpdatePlugin', () => {
-      return new Promise((resolve, reject) => {
-        writeFile(versionPath, { contents, title, version, timestamp: Date.now() })
-          .then(() => {
-            readFile(templatePath)
-              .then(data => {
-                const [header, footer] = data.split('<body>')
-                const body = `
-              <script>
-                !localStorage['${name}'] && localStorage.setItem('${name}', "${version}");
-                window['${syncFunctionName}'] = function () {
-                  localStorage.setItem('${name}', "${version}")
-                }
-              </script>
-            `
-                writeFile(templatePath, [header, body, footer].join('')).then(resolve).catch(reject)
-              })
-              .catch(reject)
-          })
-          .catch(reject)
+    compiler.hooks.done.tapPromise('CheckUpdatePlugin', (): Promise<void> => {
+      return new Promise(resolve => {
+        fs.writeFileSync(versionPath, JSON.stringify({ contents, title, version, timestamp: Date.now() }))
+        const data = fs.readFileSync(template, { encoding: 'utf8' })
+        const [header, rest] = data.split('</head>')
+        const body = getVersionInjection({ name, version, syncName })
+        fs.writeFileSync(template, [header, body, rest].join(''))
+        resolve(void 0)
       })
     })
   }
 }
-
-module.exports = CheckUpdatePlugin

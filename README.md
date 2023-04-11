@@ -41,7 +41,7 @@ Vue.prototype.$checkUpdate = function () {
       dangerouslyUseHTMLString: true,
       message: contents.toString(),
       // 关闭后手动同步服务器上的最新版本号到本地
-      onClose: () => window.syncVersionInformation()
+      onClose: () => window.syncVersion()
     })
   })
 }
@@ -49,12 +49,12 @@ Vue.prototype.$checkUpdate = function () {
 
 #### Props
 
-| 参数名           | 说明                                                  | 默认值                 |
-| ---------------- | ----------------------------------------------------- | ---------------------- |
-| name             | 唯一标识 (string)                                     | -                      |
-| version          | 更新的版本号(string)                                  | -                      |
-| versionPath      | 版本信息存放文件路径(string)                          | dist/version.json      |
-| templatePath     | html 模板路径(string)                                 | dist/index.html        |
-| title            | 版本更新大标题(string)                                | false                  |
-| syncFunctionName | 同步最新版本号函数名(string) window[syncFunctionName] | syncVersionInformation |
-| contents         | 版本更新日志(string[])                                | []                     |
+| 参数名      | 说明                                          | 默认值            |
+| ----------- | --------------------------------------------- | ----------------- |
+| name        | 唯一标识 (string/required)                    | -                 |
+| version     | 更新的版本号(string/required)                 | -                 |
+| versionPath | 版本信息存放文件路径(string)                  | dist/version.json |
+| template    | html 模板路径(string)                         | dist/index.html   |
+| title       | 版本更新大标题(string)                        | -                 |
+| syncName    | 同步最新版本号函数名(string) window[syncName] | syncVersion       |
+| contents    | 版本更新日志(string[])                        | []                |
