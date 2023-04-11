@@ -47,24 +47,21 @@ class CheckUpdatePlugin {
       throw Error('Missing name parameter')
     }
 
-    compiler.hooks.done.tapPromise('CheckUpdatePlugin', async () => {
-      try {
-        await writeFile(versionPath, { contents, title, version, timestamp: Date.now() })
-        const data = await readFile(templatePath)
-        const [header, footer] = data.split('<body>')
-        const body = `
-          <script>
-            !localStorage['${name}'] && localStorage.setItem('${name}', "${version}");
-            window['${syncFunctionName}'] = function () {
-              localStorage.setItem('${name}', "${version}")
-            }
-          </script>
-        `
-        await writeFile(templatePath, [header, body, footer].join(''))
-      } catch (error) {
-        console.error('Error occurred while applying plugin', error)
-        throw error
-      }
+    compiler.hooks.done.tapPromise('CheckUpdatePlugin', () => {
+      writeFile(versionPath, { contents, title, version, timestamp: Date.now() }).then(() => {
+        readFile(templatePath).then(data => {
+          const [header, footer] = data.split('<body>')
+          const body = `
+            <script>
+              !localStorage['${name}'] && localStorage.setItem('${name}', "${version}");
+              window['${syncFunctionName}'] = function () {
+                localStorage.setItem('${name}', "${version}")
+              }
+            </script>
+          `
+          writeFile(templatePath, [header, body, footer].join(''))
+        })
+      })
     })
   }
 }
